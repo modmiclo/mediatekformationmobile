@@ -83,6 +83,15 @@ public class FormationListAdapter extends RecyclerView.Adapter<FormationListAdap
     }
 
     /**
+     * Met à jour la liste des formations affichées dans le RecyclerView.
+     * @param newFormations nouvelle liste à afficher
+     */
+    public void setFormations(List<Formation> newFormations) {
+        this.formations = newFormations;
+        notifyDataSetChanged();
+    }
+
+    /**
      * Classe interne pour gérer une ligne (affichage, événements)
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -120,6 +129,7 @@ public class FormationListAdapter extends RecyclerView.Adapter<FormationListAdap
             int position = getBindingAdapterPosition();
             presenter.transfertFormation(formations.get(position));
         }
+
 
     }
 }

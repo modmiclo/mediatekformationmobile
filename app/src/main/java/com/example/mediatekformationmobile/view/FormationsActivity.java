@@ -3,6 +3,8 @@ package com.example.mediatekformationmobile.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +27,10 @@ import java.util.List;
 public class FormationsActivity extends AppCompatActivity implements IFormationsView {
 
     private FormationsPresenter presenter;
+    private RecyclerView lstFormations;
+    private FormationListAdapter adapter;
+    private EditText txtFiltre;
+    private Button btnFiltrer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,15 @@ public class FormationsActivity extends AppCompatActivity implements IFormations
      */
     private void init(){
         presenter = new FormationsPresenter(this);
+        lstFormations = findViewById(R.id.lstFormations);
+        txtFiltre = findViewById(R.id.txtFiltre);
+        btnFiltrer = findViewById(R.id.btnFiltrer);
+        lstFormations.setLayoutManager(new LinearLayoutManager(this));
+        btnFiltrer.setOnClickListener(v -> {
+            String filtre = txtFiltre.getText().toString();
+            List<Formation> listeFiltree = presenter.getFormationsFiltrees(filtre);
+            afficherListe(listeFiltree);
+        });
         presenter.chargerFormations();
     }
 
