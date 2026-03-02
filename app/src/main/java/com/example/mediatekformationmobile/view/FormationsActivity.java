@@ -19,19 +19,20 @@ import com.example.mediatekformationmobile.contract.IFormationsView;
 import com.example.mediatekformationmobile.model.Formation;
 import com.example.mediatekformationmobile.presenter.FormationsPresenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Activity pour afficher la liste des formations
  */
-public class FormationsActivity extends AppCompatActivity implements IFormationsView {
-
+public class FormationsActivity extends AppCompatActivity implements IFormationsView, FormationListAdapter.OnFormationActionListener {
+    public static final String EXTRA_ONLY_FAVORITES = "only_favorites";
     private FormationsPresenter presenter;
     private RecyclerView lstFormations;
     private FormationListAdapter adapter;
     private EditText txtFiltre;
     private Button btnFiltrer;
-
+    private boolean onlyFavorites = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,11 +50,16 @@ public class FormationsActivity extends AppCompatActivity implements IFormations
      * Traitements nécessaires dès la création de l'activity
      */
     private void init(){
-        presenter = new FormationsPresenter(this);
+        Intent intent = getIntent();
+        onlyFavorites = intent != null && intent.getBooleanExtra(EXTRA_ONLY_FAVORITES, false);
+        presenter = new FormationsPresenter(this, getApplicationContext());
+        presenter.setOnlyFavorites(onlyFavorites);
         lstFormations = findViewById(R.id.lstFormations);
         txtFiltre = findViewById(R.id.txtFiltre);
         btnFiltrer = findViewById(R.id.btnFiltrer);
         lstFormations.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new FormationListAdapter(new ArrayList<>(), this);
+        lstFormations.setAdapter(adapter);
         btnFiltrer.setOnClickListener(v -> {
             String filtre = txtFiltre.getText().toString();
             List<Formation> listeFiltree = presenter.getFormationsFiltrees(filtre);
@@ -63,24 +69,18 @@ public class FormationsActivity extends AppCompatActivity implements IFormations
     }
 
     /**
-     * Méthode permettant le transfert de la liste des formations pour affichage
-     *
-     * @param formations
+     * Affiche une liste (utilisée aussi après filtrage / favoris)
      */
     @Override
     public void afficherListe(List formations) {
-        if (formations != null){
-            RecyclerView lstHisto = (RecyclerView) findViewById(R.id.lstFormations);
-            FormationListAdapter adapter = new FormationListAdapter(formations, FormationsActivity.this);
-            lstHisto.setAdapter(adapter);
-            lstHisto.setLayoutManager(new LinearLayoutManager(FormationsActivity.this));
+        if (formations != null && adapter != null){
+            //noinspection unchecked
+            adapter.setFormations((List<Formation>) formations);
         }
     }
 
     /**
-     * Méthode permettant le transfert d'une formation vers une activity
-     *
-     * @param formation
+     * Navigation vers le détail
      */
     @Override
     public void transfertFormation(Formation formation) {
@@ -89,13 +89,19 @@ public class FormationsActivity extends AppCompatActivity implements IFormations
         startActivity(intent);
     }
 
-    /**
-     * Méthode permettant d'afficher un message de type Toast
-     *
-     * @param message
-     */
     @Override
     public void afficherMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFormationClicked(Formation formation) {
+        presenter.transfertFormation(formation);
+    }
+
+    @Override
+    public void onFavoriteClicked(Formation formation) {
+        String filtreActuel = txtFiltre.getText() != null ? txtFiltre.getText().toString() : "";
+        presenter.toggleFavori(formation, filtreActuel);
     }
 }

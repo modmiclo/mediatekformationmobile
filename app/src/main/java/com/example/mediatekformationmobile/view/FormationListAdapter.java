@@ -11,9 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mediatekformationmobile.R;
-import com.example.mediatekformationmobile.contract.IFormationsView;
 import com.example.mediatekformationmobile.model.Formation;
-import com.example.mediatekformationmobile.presenter.FormationsPresenter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,114 +20,64 @@ import java.util.Locale;
 
 public class FormationListAdapter extends RecyclerView.Adapter<FormationListAdapter.ViewHolder> {
 
-    private List<Formation> formations;
-    private IFormationsView vue;
-
-    /**
-     * Constructeur : valorise les propriétés privées
-     * @param formations
-     * @param vue
-     */
-    public FormationListAdapter(List<Formation> formations, IFormationsView vue){
-        this.formations = formations;
-        this.vue = vue;
+    public interface OnFormationActionListener {
+        void onFormationClicked(Formation formation);
+        void onFavoriteClicked(Formation formation);
     }
 
-    /**
-     * Construction de la ligne
-     *
-     * @param parent   The ViewGroup into which the new View will be added after it is bound to
-     *                 an adapter position.
-     * @param viewType The view type of the new View.
-     * @return A new ViewHolder that holds a View of the given view type.
-     */
+    private List<Formation> formations;
+    private OnFormationActionListener listener;
+    public FormationListAdapter(List<Formation> formations, OnFormationActionListener listener){
+        this.formations = formations;
+        this.listener = listener;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context parentContext = parent.getContext();
         LayoutInflater layout = LayoutInflater.from(parentContext);
         View view = layout.inflate(R.layout.layout_liste_formation, parent, false);
-        return new FormationListAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
-    /**
-     * Remplissage de la ligne
-     *
-     * @param holder   The ViewHolder which should be updated to represent the contents of the
-     *                 item at the given position in the data set.
-     * @param position The position of the item within the adapter's data set.
-     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // récupération du titre pour l'affichage
-        String title = formations.get(position).getTitle();
-        holder.txtListeTitle.setText(title);
-        // récupération de la date pour l'affichage
-        Date publishedAt = formations.get(position).getPublishedAt();
+        Formation formation = formations.get(position);
+        holder.txtListeTitle.setText(formation.getTitle());
+        Date publishedAt = formation.getPublishedAt();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        String dateFormatee = sdf.format(publishedAt);
-        holder.txtListPublishedAt.setText(dateFormatee);
-
+        holder.txtListPublishedAt.setText(sdf.format(publishedAt));
+        holder.btnListFavori.setImageResource(
+                formation.isFavorite() ? R.drawable.coeur_rouge : R.drawable.coeur_gris
+        );
+        holder.btnListFavori.setOnClickListener(v -> {
+            if (listener != null) listener.onFavoriteClicked(formation);
+        });
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onFormationClicked(formation);
+        });
     }
 
-    /**
-     * Returns the total number of items in the data set held by the adapter.
-     *
-     * @return nombre de lignes dans la liste
-     */
     @Override
     public int getItemCount() {
-        return formations.size();
+        return formations != null ? formations.size() : 0;
     }
 
-    /**
-     * Met à jour la liste des formations affichées dans le RecyclerView.
-     * @param newFormations nouvelle liste à afficher
-     */
     public void setFormations(List<Formation> newFormations) {
         this.formations = newFormations;
         notifyDataSetChanged();
     }
 
-    /**
-     * Classe interne pour gérer une ligne (affichage, événements)
-     */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public final ImageButton btnListFavori;
         public final TextView txtListPublishedAt;
         public final TextView txtListeTitle;
-        private FormationsPresenter presenter;
-
-        /**
-         * Constructeur : crée un lien avec les objets graphiques de la ligne
-         * @param itemView
-         */
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtListeTitle = (TextView)itemView.findViewById(R.id.txtListTitle);
-            txtListPublishedAt = (TextView)itemView.findViewById(R.id.txtListPublishedAt);
-            btnListFavori = (ImageButton)itemView.findViewById(R.id.btnListFavori);
-            init();
+            txtListeTitle = itemView.findViewById(R.id.txtListTitle);
+            txtListPublishedAt = itemView.findViewById(R.id.txtListPublishedAt);
+            btnListFavori = itemView.findViewById(R.id.btnListFavori);
         }
-
-        /**
-         * initialisations
-         */
-        private void init(){
-            presenter = new FormationsPresenter(vue);
-            txtListeTitle.setOnClickListener(v -> txtListeTitleOrPublishedAt_clic());
-            txtListPublishedAt.setOnClickListener(v -> txtListeTitleOrPublishedAt_clic());
-        }
-
-        /**
-         * Clic sur un des textes de la ligne :
-         * transfert de la formation vers l'activity UneFormationActivity
-         */
-        private void txtListeTitleOrPublishedAt_clic(){
-            int position = getBindingAdapterPosition();
-            presenter.transfertFormation(formations.get(position));
-        }
-
-
     }
 }

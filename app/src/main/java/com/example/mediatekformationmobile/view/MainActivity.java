@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.mediatekformationmobile.R;
 
 /**
- * Activity qui affiche me menu
+ * Activity qui affiche le menu
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -33,36 +33,26 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
-    /**
-     * Traitements nécessaires dès la création de l'activity
-     */
     private void init(){
         chargeObjetsGraphiques();
         creerMenu();
     }
 
-    /**
-     * Récupération des objets graphiques
-     */
     private void chargeObjetsGraphiques(){
         btnFormations = findViewById(R.id.btnFormations);
         btnFavoris = findViewById(R.id.btnFavoris);
     }
 
-    /**
-     * Demande de création des écoutes sur les boutons
-     */
     private void creerMenu(){
-        btnFormations.setOnClickListener(v -> ecouteMenu(FormationsActivity.class));
-
-    }
-
-    /**
-     * Ouvre l'activity correspondant au paramètre
-     * @param classe
-     */
-    private void ecouteMenu(Class classe){
-        Intent intent = new Intent(MainActivity.this, classe);
-        startActivity(intent);
+        btnFormations.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FormationsActivity.class);
+            intent.putExtra(FormationsActivity.EXTRA_ONLY_FAVORITES, false);
+            startActivity(intent);
+        });
+        btnFavoris.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FormationsActivity.class);
+            intent.putExtra(FormationsActivity.EXTRA_ONLY_FAVORITES, true);
+            startActivity(intent);
+        });
     }
 }
