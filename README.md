@@ -35,10 +35,11 @@ Un filtre permet de rechercher une formation par mot-clé dans le titre :
 - Recherche **partielle** (le mot peut être au milieu du titre).
 - Si le champ est vide : la **liste complète** est réaffichée.
 - Aucun nouvel appel API n’est effectué : le filtrage est réalisé localement sur la liste chargée.
-- 
-<img width="297" height="665" alt="image" src="https://github.com/user-attachments/assets/f402a749-db2e-4f7b-beb0-a19fc4d866d2" />
 
-<img width="294" height="666" alt="image" src="https://github.com/user-attachments/assets/5ce23a89-8ac4-40a6-a3a5-b4dc12e8231b" />
+Capture – Filtre vide (liste complète)  
+
+Capture – Filtrage actif (ex : "doc")  
+
 
 ---
 
@@ -48,10 +49,10 @@ L’application permet maintenant :
 - de retirer un favori (le cœur redevient gris),
 - d’afficher uniquement les favoris via le menu "Mes favoris".
 
-<img width="292" height="664" alt="image" src="https://github.com/user-attachments/assets/021529e9-13de-4d79-b069-55f652f0cbe7" />
+Capture – Liste avec favoris (cœurs rouges/gris)  
 
-<img width="299" height="667" alt="image" src="https://github.com/user-attachments/assets/37133861-bed4-4925-abf5-e004a3b66626" />
- 
+Capture – Page "Mes favoris"  
+
 ---
 
 ### Persistance locale des favoris (SQLite)
@@ -63,6 +64,8 @@ Les favoris sont conservés même après fermeture de l’application grâce à 
 Contrôle de cohérence :
 - lors du chargement, si un favori local n’existe plus côté API, il est supprimé automatiquement (nettoyage).
 
+Capture – Exemple base SQLite (facultatif)  
+
 ---
 
 ### Tests unitaires + tests fonctionnels
@@ -73,7 +76,7 @@ Des tests unitaires ont été réalisés sur la classe `Formation` :
 - gestion du booléen favori
 - comportements avec valeurs nulles
 
-<img width="206" height="58" alt="image" src="https://github.com/user-attachments/assets/e6a262cb-823e-4fed-a479-f4fd5a52c83c" />
+Capture – Exécution des tests unitaires  
 
 #### Tests fonctionnels (manuel)
 Scénario vérifié :
@@ -83,8 +86,7 @@ Scénario vérifié :
 - affichage "mes favoris"
 - navigation liste → détail → vidéo
 
-<img width="945" height="596" alt="image" src="https://github.com/user-attachments/assets/67a13723-1ff1-4009-b64a-1cf26b7efb0d" />
-<img width="945" height="324" alt="image" src="https://github.com/user-attachments/assets/81189235-8b99-45a9-8e56-508d84208d3c" />
+Capture – Plan de tests / scénario (optionnel)  
 
 ---
 
@@ -162,6 +164,7 @@ CREATE TABLE IF NOT EXISTS formation (
   PRIMARY KEY (id),
   KEY IDX_404021BF6BBD148 (playlist_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 Explication des champs :<br>
 . id : identifiant de la formation<br>
 . playlist_id : identifiant de la playlist à laquelle la vidéo est rattachée(bt>
@@ -186,7 +189,6 @@ Pour tester l'application mediatekformationmobile local, il faut d'abord install
 L'application a été faite avec la version "Android Studio Narwhal 2025.1.2".<br>
 Une fois la BDD et l'API REST installées, si le but est de tester en déployant l'application (donc BDD et API REST sur un serveur distant et construction de l'APK) :<br>
 Dans FormationApi.java du package api, se trouve la déclaration de la constante API_URL qui contient l’adresse IP de l’api rest pour un test local avec émulateur. Il faut remplacer l’adresse actuelle par celle de l'api en ligne.
-```
 
 ---
 
@@ -198,7 +200,7 @@ L'application peut être installée directement sur un smartphone Android à par
 
 Ouvrir le dépôt GitHub du projet.
 Deux possibilités :
-- naviguer dans le dossier app/build/outputs/apk/debug/ puis télécharger le fichier app-debug.apk,
+- naviguer dans le dossier app/release/ puis télécharger le fichier app-release.apk.
 - ou accéder à la section Releases / Tags du dépôt et télécharger directement le fichier APK associé au tag.
 
 ### Installation sur un smartphone Android
