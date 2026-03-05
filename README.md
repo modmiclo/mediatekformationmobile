@@ -186,7 +186,7 @@ Pour tester l'application mediatekformationmobile local, il faut d'abord install
 L'application a été faite avec la version "Android Studio Narwhal 2025.1.2".<br>
 Une fois la BDD et l'API REST installées, si le but est de tester en déployant l'application (donc BDD et API REST sur un serveur distant et construction de l'APK) :<br>
 Dans FormationApi.java du package api, se trouve la déclaration de la constante API_URL qui contient l’adresse IP de l’api rest pour un test local avec émulateur. Il faut remplacer l’adresse actuelle par celle de l'api en ligne.
-
+```
 
 ---
 
