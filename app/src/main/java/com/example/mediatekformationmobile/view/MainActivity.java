@@ -13,11 +13,23 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.mediatekformationmobile.R;
 
 /**
- * Activity qui affiche le menu
+ * Activity représentant l'écran d'accueil (menu principal).
+ * Cette vue permet à l'utilisateur de choisir entre :
+ * - Afficher toutes les formations
+ * - Afficher uniquement les favoris
+ * Le choix est transmis à {@link FormationsActivity} via l'extra
+ * {@link FormationsActivity#EXTRA_ONLY_FAVORITES}.
  */
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Bouton d'accès à la liste complète des formations.
+     */
     private ImageButton btnFormations;
+
+    /**
+     * Bouton d'accès à la liste des favoris.
+     */
     private ImageButton btnFavoris;
 
     @Override
@@ -33,17 +45,31 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
-    private void init(){
+    /**
+     * Initialise l'activity :
+     * - charge les composants graphiques
+     * - configure les actions de menu
+     */
+    private void init() {
         chargeObjetsGraphiques();
         creerMenu();
     }
 
-    private void chargeObjetsGraphiques(){
+    /**
+     * Récupère les références vers les composants de l'interface (ImageButton).
+     */
+    private void chargeObjetsGraphiques() {
         btnFormations = findViewById(R.id.btnFormations);
         btnFavoris = findViewById(R.id.btnFavoris);
     }
 
-    private void creerMenu(){
+    /**
+     * Associe les actions de clic aux boutons du menu.
+     * Lance {@link FormationsActivity} en précisant le mode :
+     * - {@code false} : toutes les formations
+     * - {@code true} : seulement les favoris
+     */
+    private void creerMenu() {
         btnFormations.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, FormationsActivity.class);
             intent.putExtra(FormationsActivity.EXTRA_ONLY_FAVORITES, false);

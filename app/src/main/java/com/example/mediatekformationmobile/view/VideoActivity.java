@@ -13,10 +13,15 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.mediatekformationmobile.R;
 import com.example.mediatekformationmobile.model.Formation;
 
+/**
+ * Activity responsable de l'affichage d'une vidéo YouTube via une {@link WebView}.
+ * L'objet {@link Formation} est reçu via Intent (Serializable) depuis {@link UneFormationActivity}.
+ * La WebView charge l'URL YouTube basée sur {@link Formation#getVideoId()}.
+ */
 public class VideoActivity extends AppCompatActivity {
 
     /**
-     * objet d'affichage de la vidéo
+     * Objet d'affichage de la vidéo YouTube.
      */
     WebView wbvYoutube;
 
@@ -34,19 +39,20 @@ public class VideoActivity extends AppCompatActivity {
     }
 
     /**
-     * Affichage  de la vidéo
+     * Initialise l'affichage de l'activity :
+     * récupère la formation et configure la WebView.
      */
-    private void init(){
+    private void init() {
         recupFormation();
     }
 
     /**
-     * Récupère la formation envoyée par une autre activity (UneFormationActivity)
-     * et affiche la vidéo
+     * Récupère la formation envoyée par {@link UneFormationActivity} et affiche la vidéo.
+     * Active JavaScript (nécessaire pour certains contenus), définit un {@link WebViewClient} puis charge l'URL YouTube.
      */
-    private void recupFormation(){
+    private void recupFormation() {
         Formation formation = (Formation) getIntent().getSerializableExtra("formation");
-        if(formation!=null) {
+        if (formation != null) {
             wbvYoutube = findViewById(R.id.wbvYoutube);
             wbvYoutube.getSettings().setJavaScriptEnabled(true);
             wbvYoutube.setWebViewClient(new WebViewClient());

@@ -1,47 +1,160 @@
 # mediatekformationmobile
-Cette application mobile permet d'accéder aux vidéos des formations proposées par la médiathèque.
+
+Cette application mobile Android permet d'accéder aux vidéos des formations proposées par la médiathèque (auto-formation).
+Les données des formations sont récupérées depuis une base MySQL distante via une API REST, puis affichées dans l'application.
+
 ## Fonctionnalités
-L'application permet de consulter la liste des titres des formations mises à disposition (récupérées dans la base de données distante, via une API REST).<br>
-En sélectionnant un titre, une page présente plus de détails sur la formation et le clic sur l'image permet d'accéder à la page de diffusion de la vidéo à partir de son adresse en ligne.
-### Page 1 : l'accueil
-La page d'accueil présente le menu :<br>
-. "les formations" : avec en dessous, une image cliquable qui permet d'accéder à la page des formations.<br>
-. "mes favoris" : avec en dessous, une image cliquable, non encore opérationnelle.<br>
-![img1](https://github.com/user-attachments/assets/8d25dbea-89a6-44a8-a969-fc508b933f96)
-<br>
-Le code se trouve dans MainActivity lié au layout activity_main.<br>	 
-### Page 2 : les formations
-La page des formations affiche la liste des formations avec, sur chaque ligne :<br>
-. un cœur actuellement non opérationnel, qui permettra de sélectionner les favoris ;<br>
-. la date de la formation et, en dessous, son titre en plus gros.<br>
-La liste est triée sur la date de parution, dans l'ordre inverse (la plus récente en premier).<br>
-Au-dessus de la liste, une zone de saisie et un bouton "filtrer" doit permettre de filtrer les lignes sur le titre (en tapant une partie du titre, la casse n'est pas prise en compte). Si le bouton "filtrer" est utilisé alors que la zone de saisie est vide, toutes les formations devront être à nouveau affichées. La fonctionnalité n'est pas encore implémentée.<br>
-Le clic sur une date ou un titre de formation permet d'accéder à la page suivante de la présentation du détail d'une formation.<br>
-Le clic sur la flèche à gauche du titre permet de revenir au menu (cette possibilité est définie dans le manifest).<br>
-![img2](https://github.com/user-attachments/assets/d1de5f62-eb71-45ab-a991-f899e9c1bbf6)
-<br>
-Le code se trouve dans FormationsActivity lié au layout activity_formations. FormationActivity fait appel à FormationListAdapter pour gérer la liste interactive. Chaque ligne de la liste interactive est construite avec le layout layout_liste_formations.	 
-### Page 3 : une formation
-La page de présentation d'une formation contient, de haut en bas :<br>
-. l'image de la formation (correspondant à l'attribut "picture") ;<br>
-. le titre de la formation (en gros) ;<br>
-. la date de parution ;<br>
-. le sous-titre "description" avec, en dessous, la description détaillée dans une zone déroulante (dans le cas où elle dépasse la taille de la zone d'affichage).<br>
-Le clic sur l'image permet d'accéder à la page suivante contenant la vidéo. Si la formation n'a pas d'image, une image standard s'affiche, cependant, la fonctionnalité d'accès à la page de la vidéo est opérationnelle.<br>
-Le clic sur la flèche à gauche du titre permet de revenir à la page de la liste des formations.<br>
-![img3](https://github.com/user-attachments/assets/922e7ee3-f3f4-4516-b101-171d8d72dbfe)
-<br>
-Le code se trouve dans UneFormationActivity lié au layout activity_une_formation.	
-### Page 4 : la vidéo
-La page de la vidéo affiche la vidéo en pleine page et permet de la lancer. Cette page peut être gérée verticalement ou horizontalement (suivant le format de la vidéo, la version horizontale est souvent plus confortable).<br>
-Pour que la vidéo soit la plus grande possible, la barre du haut a été supprimée. Pour revenir à la page précédente, il suffit d'utiliser la flèche gauche de navigation en bas du smartphone.<br>
-![img4](https://github.com/user-attachments/assets/d8e50a00-8823-4954-9027-25833232433a)
-<br>
-Le code se trouve dans VideoActivity lié au layout activity_video.
+
+### Consultation des formations (API REST)
+- Récupération de la liste des formations via l’API REST (lecture seule).
+- Affichage dans une RecyclerView avec :
+  - date de publication
+  - titre
+  - icône cœur (favori)
+- Tri automatique par date de publication (plus récente en premier).
+
+### Détail d’une formation
+- Affichage :
+  - image (miniature YouTube)
+  - titre
+  - date de publication
+  - description (zone scrollable)
+- Clic sur l’image : ouverture de la page vidéo.
+
+### Lecture de la vidéo YouTube
+- Lecture via WebView (plein écran possible).
+- Navigation retour via la touche système "Retour".
+
+---
+
+## Fonctionnalités ajoutées
+
+### Filtrage des formations (recherche sur le titre)
+Un filtre permet de rechercher une formation par mot-clé dans le titre :
+- Recherche **insensible à la casse** (maj/min non prises en compte).
+- Recherche **partielle** (le mot peut être au milieu du titre).
+- Si le champ est vide : la **liste complète** est réaffichée.
+- Aucun nouvel appel API n’est effectué : le filtrage est réalisé localement sur la liste chargée.
+
+Capture – Filtre vide (liste complète)  
+
+Capture – Filtrage actif (ex : "doc")  
+
+
+---
+
+### Gestion des favoris (icône cœur)
+L’application permet maintenant :
+- d’ajouter une formation en favori en cliquant sur le cœur (devient rouge),
+- de retirer un favori (le cœur redevient gris),
+- d’afficher uniquement les favoris via le menu "Mes favoris".
+
+Capture – Liste avec favoris (cœurs rouges/gris)  
+
+Capture – Page "Mes favoris"  
+
+---
+
+### Persistance locale des favoris (SQLite)
+Les favoris sont conservés même après fermeture de l’application grâce à une base locale SQLite :
+- table `favorites`
+- colonne unique `formation_id` (clé primaire)
+- ajout/suppression via un repository
+
+Contrôle de cohérence :
+- lors du chargement, si un favori local n’existe plus côté API, il est supprimé automatiquement (nettoyage).
+
+Capture – Exemple base SQLite (facultatif)  
+
+---
+
+### Tests unitaires + tests fonctionnels
+#### Tests unitaires (JUnit)
+Des tests unitaires ont été réalisés sur la classe `Formation` :
+- constructeur / getters
+- URL miniature / image
+- gestion du booléen favori
+- comportements avec valeurs nulles
+
+Capture – Exécution des tests unitaires  
+
+#### Tests fonctionnels (manuel)
+Scénario vérifié :
+- chargement depuis API
+- filtrage
+- ajout/retrait favoris
+- affichage "mes favoris"
+- navigation liste → détail → vidéo
+
+Capture – Plan de tests / scénario (optionnel)  
+
+---
+
+### Qualité du code (Sonar)
+Analyse de qualité réalisée (SonarLint/Sonar) :
+- réduction des duplications
+- amélioration lisibilité
+- corrections de warnings
+
+---
+
+## Architecture (MVP)
+
+Le projet suit une architecture MVP (Model / View / Presenter) :
+
+- **Model**
+  - `Formation` (données + génération des URLs YouTube + état favori local)
+
+- **View**
+  - `MainActivity` : menu d’accès (formations / favoris)
+  - `FormationsActivity` : liste + filtre + favoris
+  - `UneFormationActivity` : détail formation
+  - `VideoActivity` : lecture vidéo
+
+- **Presenter**
+  - `FormationsPresenter` : chargement API, tri, filtrage, gestion des favoris, communication avec la vue
+
+- **Data (SQLite)**
+  - `FavoritesDbHelper` : création/upgrade de la base
+  - `FavoritesRepository` : opérations CRUD (add/remove/getAll/cleanup)
+
+---
+
+## Pages de l'application (captures)
+
+### Page 1 : Accueil
+Menu :
+- "Les formations"
+- "Mes favoris"
+![Accueil](https://github.com/user-attachments/assets/8d25dbea-89a6-44a8-a969-fc508b933f96)
+
+Code : `MainActivity` + layout `activity_main`.
+
+### Page 2 : Formations
+Liste triée par date décroissante + filtre + icône cœur.
+![Formations](https://github.com/user-attachments/assets/d1de5f62-eb71-45ab-a991-f899e9c1bbf6)
+
+Code : `FormationsActivity` + `FormationListAdapter` + layout `activity_formations` + `layout_liste_formation`.
+
+### Page 3 : Détail formation
+![Détail](https://github.com/user-attachments/assets/922e7ee3-f3f4-4516-b101-171d8d72dbfe)
+
+Code : `UneFormationActivity` + layout `activity_une_formation`.
+
+### Page 4 : Vidéo
+![Vidéo](https://github.com/user-attachments/assets/d8e50a00-8823-4954-9027-25833232433a)
+
+Code : `VideoActivity` + layout `activity_video`.
+
+---
+
 ## Base de données
-La base de données 'mediatekformation' est au format MySQL. Elle est aussi utilisée pour l'application web.<br>
-Elle contient plusieurs tables mais une seule est utile pour l'application mobile : la table 'formation' dont voici la structure :<br>
-<pre><code>CREATE TABLE IF NOT EXISTS formation (
+
+La base `mediatekformation` est au format MySQL (utilisée aussi par l’application web).
+Table utilisée : `formation`
+
+```sql
+CREATE TABLE IF NOT EXISTS formation (
   id int NOT NULL AUTO_INCREMENT,
   playlist_id int DEFAULT NULL,
   published_at datetime DEFAULT NULL,
@@ -50,7 +163,7 @@ Elle contient plusieurs tables mais une seule est utile pour l'application mobil
   video_id varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (id),
   KEY IDX_404021BF6BBD148 (playlist_id)
-) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre><br>
+) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 Explication des champs :<br>
 . id : identifiant de la formation<br>
 . playlist_id : identifiant de la playlist à laquelle la vidéo est rattachée(bt>

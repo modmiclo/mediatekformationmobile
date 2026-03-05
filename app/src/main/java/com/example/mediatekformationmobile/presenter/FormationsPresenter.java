@@ -16,33 +16,81 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Presenter dédié à la vue qui affiche la liste des formations (FormationsActivity)
+ * Presenter MVP dédié à la vue qui affiche la liste des formations (FormationsActivity).
+ * Responsabilités :
+ * - Appeler l'API pour charger les formations
+ * - Trier les formations par date de publication décroissante
+ * - Gérer le mode "toutes" / "favoris uniquement"
+ * - Gérer la persistance des favoris en SQLite via {@link FavoritesRepository}
+ * - Filtrer la liste par texte (sur le titre)
+ * - Transmettre les résultats à la vue via {@link IFormationsView}
  */
 public class FormationsPresenter {
+
+    /**
+     * Référence vers la vue MVP (Activity).
+     */
     private IFormationsView vue;
+
+    /**
+     * Liste complète des formations récupérées depuis l'API (non filtrée).
+     */
     private List<Formation> allFormations = null;
+
+    /**
+     * Liste de base affichable (toutes ou seulement favoris, selon {@link #onlyFavorites}).
+     */
     private List<Formation> formations = null;
+
+    /**
+     * Repository SQLite pour la persistance des favoris.
+     */
     private final FavoritesRepository favoritesRepo;
+
+    /**
+     * Ensemble des ids favoris enregistrés localement.
+     */
     private Set<Integer> favoriteIds = new HashSet<>();
+
+    /**
+     * Mode d'affichage : {@code true} = uniquement favoris.
+     */
     private boolean onlyFavorites = false;
-    public FormationsPresenter(IFormationsView vue, Context context){
+
+    /**
+     * Constructeur du presenter.
+     * @param vue     vue MVP utilisée pour afficher les données et déclencher la navigation
+     * @param context contexte Android (utilisé pour instancier le repository SQLite)
+     */
+    public FormationsPresenter(IFormationsView vue, Context context) {
         this.vue = vue;
         this.favoritesRepo = new FavoritesRepository(context);
     }
 
+    /**
+     * Active ou désactive l'affichage uniquement des favoris.
+     * @param onlyFavorites {@code true} pour afficher uniquement les favoris, sinon {@code false}
+     */
     public void setOnlyFavorites(boolean onlyFavorites) {
         this.onlyFavorites = onlyFavorites;
     }
 
     /**
-     * Récupère les formations de la BDD distante et les envoie à la vue
-     * (appelé 1 seule fois)
+     * Charge les formations depuis l'API distante puis met à jour la vue.
+     * Étapes :
+     * - Appel API asynchrone
+     * - Tri par date de publication décroissante
+     * - Chargement des ids favoris depuis SQLite
+     * - Nettoyage des favoris obsolètes (ids non présents dans l'API)
+     * - Synchronisation de l'état {@code favorite} des objets {@link Formation}
+     * - Construction de la liste de base (toutes/favoris)
+     * - Affichage via {@link IFormationsView#afficherListe(List)}
      */
     public void chargerFormations() {
-        HelperApi.call(HelperApi.getApi().getFormations(), new ICallbackApi<List<Formation>>(){
+        HelperApi.call(HelperApi.getApi().getFormations(), new ICallbackApi<List<Formation>>() {
             @Override
             public void onSuccess(List<Formation> result) {
-                if(result != null && !result.isEmpty()){
+                if (result != null && !result.isEmpty()) {
                     allFormations = result;
 
                     Collections.sort(allFormations, (p1, p2) -> p2.getPublishedAt().compareTo(p1.getPublishedAt()));
@@ -69,7 +117,9 @@ public class FormationsPresenter {
     }
 
     /**
-     * Reconstruit formations = (toutes) ou (uniquement favoris)
+     * Reconstruit la liste de base {@link #formations} selon le mode :
+     * si {@link #onlyFavorites} est false : liste complète {@link #allFormations}
+     * si {@link #onlyFavorites} est true : uniquement les formations dont {@link Formation#isFavorite()} est true
      */
     private void rebuildBaseList() {
         if (allFormations == null) {
@@ -88,8 +138,10 @@ public class FormationsPresenter {
     }
 
     /**
-     * Retourne la liste filtrée sur le titre (sans casse).
-     * Si filtre vide => renvoie la liste complète (selon mode).
+     * Retourne la liste filtrée sur le titre (recherche insensible à la casse).
+     * Si {@code filtre} est vide ou null, renvoie la liste de base (toutes/favoris).
+     * @param filtre texte saisi par l'utilisateur (peut être null)
+     * @return liste filtrée (jamais {@code null})
      */
     public List<Formation> getFormationsFiltrees(String filtre) {
         if (formations == null) {
@@ -110,7 +162,11 @@ public class FormationsPresenter {
     }
 
     /**
-     * Toggle favori (local uniquement) + refresh de la liste (en respectant le filtre)
+     * Inverse l'état favori d'une formation et persiste immédiatement la modification en SQLite.
+     * Après modification, reconstruit la liste de base (toutes/favoris) puis redemande l'affichage
+     * à la vue en respectant le filtre actuel.
+     * @param formation     formation à basculer en favori/non favori (si null : aucune action)
+     * @param filtreActuel  filtre actuellement saisi (pour rafraîchir l'affichage de manière cohérente)
      */
     public void toggleFavori(Formation formation, String filtreActuel) {
         if (formation == null) return;
@@ -131,9 +187,11 @@ public class FormationsPresenter {
     }
 
     /**
-     * Demande de transfert de la formation vers une autre activity
+     * Demande à la vue d'effectuer la navigation vers l'écran de détail,
+     * en transmettant l'objet {@link Formation}.
+     * @param formation formation sélectionnée (peut être null selon l'appelant)
      */
-    public void transfertFormation(Formation formation){
+    public void transfertFormation(Formation formation) {
         vue.transfertFormation(formation);
     }
 }

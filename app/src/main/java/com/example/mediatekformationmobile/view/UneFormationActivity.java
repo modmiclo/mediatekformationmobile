@@ -22,12 +22,41 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Activity affichant le détail d'une {@link Formation}.
+ * L'objet {@link Formation} est reçu via Intent (Serializable) depuis {@link FormationsActivity}.
+ * L'écran affiche :
+ * - date de publication
+ * - titre
+ * - description
+ * - image (miniature YouTube)
+ * Un clic sur l'image déclenche l'ouverture de {@link VideoActivity}.
+ */
 public class UneFormationActivity extends AppCompatActivity {
 
+    /**
+     * Champ affichant la date de publication.
+     */
     private TextView txtPublishedAt;
+
+    /**
+     * Champ affichant le titre.
+     */
     private TextView txtTitle;
+
+    /**
+     * Champ affichant la description.
+     */
     private TextView txtDescription;
+
+    /**
+     * Bouton-image affichant la miniature et permettant d'ouvrir la vidéo.
+     */
     private ImageButton btnPicture;
+
+    /**
+     * Formation affichée à l'écran (reçue via Intent).
+     */
     private Formation formation;
 
     @Override
@@ -44,18 +73,21 @@ public class UneFormationActivity extends AppCompatActivity {
     }
 
     /**
-     * Traitements nécessaires dès la création de l'activity
+     * Traitements nécessaires dès la création de l'activity :
+     * - récupère les composants graphiques
+     * - déclare les listeners
+     * - récupère et affiche la formation reçue
      */
-    private void init(){
+    private void init() {
         chargeObjetsGraphiques();
         btnPicture.setOnClickListener(v -> btnPicture_clic());
         recupFormation();
     }
 
     /**
-     * Récupération des objets graphiques
+     * Récupère les objets graphiques depuis le layout XML.
      */
-    private void chargeObjetsGraphiques(){
+    private void chargeObjetsGraphiques() {
         txtPublishedAt = (TextView) findViewById(R.id.txtPublishedAt);
         txtTitle = (TextView) findViewById(R.id.txtTitle);
         txtDescription = (TextView) findViewById(R.id.txtDescription);
@@ -63,10 +95,11 @@ public class UneFormationActivity extends AppCompatActivity {
     }
 
     /**
-     * Traitements réalisés lors du clic sur l'image
+     * Traitements réalisés lors du clic sur l'image :
+     * ouvre {@link VideoActivity} en transmettant l'objet {@link Formation}.
      */
-    private void btnPicture_clic(){
-        if(formation != null) {
+    private void btnPicture_clic() {
+        if (formation != null) {
             Intent intent = new Intent(UneFormationActivity.this, VideoActivity.class);
             intent.putExtra("formation", formation);
             startActivity(intent);
@@ -74,11 +107,12 @@ public class UneFormationActivity extends AppCompatActivity {
     }
 
     /**
-     * Récupère la formation envoyée par une autre activity (FormationsActivity)
+     * Récupère la formation envoyée par {@link FormationsActivity} via l'Intent,
+     * puis affiche ses informations dans l'interface.
      */
-    private void recupFormation(){
+    private void recupFormation() {
         formation = (Formation) getIntent().getSerializableExtra("formation");
-        if(formation!=null) {
+        if (formation != null) {
             Date datePublication = formation.getPublishedAt();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             String dateFormatee = sdf.format(datePublication);
@@ -90,14 +124,16 @@ public class UneFormationActivity extends AppCompatActivity {
     }
 
     /**
-     * Charge une imagge à partir d'une url
-     * @param img
-     * @param url
+     * Charge une image depuis une URL et l'affiche dans un {@link ImageButton}.
+     * Le téléchargement se fait dans un thread de fond, puis l'affichage est réalisé sur le thread UI
+     * via {@link android.view.View#post(Runnable)}.
+     * @param img composant cible qui affichera l'image
+     * @param url URL de l'image à télécharger
      */
-    private void loadMapPreview (ImageButton img, String url) {
+    private void loadMapPreview(ImageButton img, String url) {
         //start a background thread for networking
         new Thread(new Runnable() {
-            public void run(){
+            public void run() {
                 try {
                     //download the drawable
                     final Drawable drawable = Drawable.createFromStream((InputStream) new URL(url).getContent(), "src");
