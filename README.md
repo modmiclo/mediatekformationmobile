@@ -35,11 +35,10 @@ Un filtre permet de rechercher une formation par mot-clé dans le titre :
 - Recherche **partielle** (le mot peut être au milieu du titre).
 - Si le champ est vide : la **liste complète** est réaffichée.
 - Aucun nouvel appel API n’est effectué : le filtrage est réalisé localement sur la liste chargée.
+- 
+<img width="297" height="665" alt="image" src="https://github.com/user-attachments/assets/f402a749-db2e-4f7b-beb0-a19fc4d866d2" />
 
-Capture – Filtre vide (liste complète)  
-
-Capture – Filtrage actif (ex : "doc")  
-
+<img width="294" height="666" alt="image" src="https://github.com/user-attachments/assets/5ce23a89-8ac4-40a6-a3a5-b4dc12e8231b" />
 
 ---
 
@@ -49,10 +48,10 @@ L’application permet maintenant :
 - de retirer un favori (le cœur redevient gris),
 - d’afficher uniquement les favoris via le menu "Mes favoris".
 
-Capture – Liste avec favoris (cœurs rouges/gris)  
+<img width="292" height="664" alt="image" src="https://github.com/user-attachments/assets/021529e9-13de-4d79-b069-55f652f0cbe7" />
 
-Capture – Page "Mes favoris"  
-
+<img width="299" height="667" alt="image" src="https://github.com/user-attachments/assets/37133861-bed4-4925-abf5-e004a3b66626" />
+ 
 ---
 
 ### Persistance locale des favoris (SQLite)
@@ -64,8 +63,6 @@ Les favoris sont conservés même après fermeture de l’application grâce à 
 Contrôle de cohérence :
 - lors du chargement, si un favori local n’existe plus côté API, il est supprimé automatiquement (nettoyage).
 
-Capture – Exemple base SQLite (facultatif)  
-
 ---
 
 ### Tests unitaires + tests fonctionnels
@@ -76,7 +73,7 @@ Des tests unitaires ont été réalisés sur la classe `Formation` :
 - gestion du booléen favori
 - comportements avec valeurs nulles
 
-Capture – Exécution des tests unitaires  
+<img width="206" height="58" alt="image" src="https://github.com/user-attachments/assets/e6a262cb-823e-4fed-a479-f4fd5a52c83c" />
 
 #### Tests fonctionnels (manuel)
 Scénario vérifié :
@@ -86,7 +83,8 @@ Scénario vérifié :
 - affichage "mes favoris"
 - navigation liste → détail → vidéo
 
-Capture – Plan de tests / scénario (optionnel)  
+<img width="945" height="596" alt="image" src="https://github.com/user-attachments/assets/67a13723-1ff1-4009-b64a-1cf26b7efb0d" />
+<img width="945" height="324" alt="image" src="https://github.com/user-attachments/assets/81189235-8b99-45a9-8e56-508d84208d3c" />
 
 ---
 
