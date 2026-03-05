@@ -186,3 +186,25 @@ Pour tester l'application mediatekformationmobile local, il faut d'abord install
 L'application a été faite avec la version "Android Studio Narwhal 2025.1.2".<br>
 Une fois la BDD et l'API REST installées, si le but est de tester en déployant l'application (donc BDD et API REST sur un serveur distant et construction de l'APK) :<br>
 Dans FormationApi.java du package api, se trouve la déclaration de la constante API_URL qui contient l’adresse IP de l’api rest pour un test local avec émulateur. Il faut remplacer l’adresse actuelle par celle de l'api en ligne.
+
+
+---
+
+## Téléchargement et installation de l'application
+
+L'application peut être installée directement sur un smartphone Android à partir du fichier APK disponible dans le dépôt.
+
+### Téléchargement de l'APK
+
+Ouvrir le dépôt GitHub du projet.
+Deux possibilités :
+- naviguer dans le dossier app/build/outputs/apk/debug/ puis télécharger le fichier app-debug.apk,
+- ou accéder à la section Releases / Tags du dépôt et télécharger directement le fichier APK associé au tag.
+
+### Installation sur un smartphone Android
+
+Les étapes peuvent varier légèrement selon la marque et la version d'Android.
+Copier le fichier app-release.apk sur le smartphone (téléchargement direct, câble USB, cloud, etc.).
+Ouvrir le fichier APK depuis un gestionnaire de fichiers.
+Si Android le demande, autoriser l'installation d'applications provenant de sources inconnues pour l'application utilisée 
+Une fois l'installation terminée, l'application mediatekformationmobile apparaît dans la liste des applications du téléphone.

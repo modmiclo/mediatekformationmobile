@@ -2,6 +2,10 @@ package com.example.mediatekformationmobile.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -9,15 +13,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Classe d'accès à l'API
  */
 public class FormationApi {
-    // 10.0.2.2 = localhost de la machine hôte quand on est dans l'émulateur Android
-    private static final String API_URL = "http://10.0.2.2/rest_mediatekformationmobile/";
+
+    // ⚠️ pas d'espaces, et doit finir par /
+    private static final String API_URL = "https://mediatekformationmobile.alwaysdata.net/";
 
     private static Retrofit retrofit = null;
 
     /**
      * objet gson pour la conversion en json et le configure pour le format de dates
      */
-    private static Gson gson = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm:ss")
             .create();
 
@@ -27,10 +32,21 @@ public class FormationApi {
      */
     public static Retrofit getRetrofit() {
         if (retrofit == null) {
-            // crée l'objet d'accès à l'api
+
+            // 1) Interceptor de logs HTTP
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            // 2) Client OkHttp avec logging
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .build();
+
+            // 3) Retrofit avec le client
             retrofit = new Retrofit.Builder()
-                    .baseUrl(API_URL) // renseigne l'url de l'api
-                    .addConverterFactory(GsonConverterFactory.create(gson)) // ajoute le convertisseur json
+                    .baseUrl(API_URL)
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofit;
